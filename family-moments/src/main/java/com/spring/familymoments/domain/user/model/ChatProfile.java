@@ -1,12 +1,14 @@
 package com.spring.familymoments.domain.user.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
 @Schema(description = "채팅방 프로필 Res")
 @Builder
 @Getter
+@AllArgsConstructor
 public class ChatProfile {
     @Schema(description = "유저 id")
     String id;

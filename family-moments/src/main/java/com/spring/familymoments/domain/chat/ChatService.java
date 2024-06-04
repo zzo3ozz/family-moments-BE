@@ -8,8 +8,10 @@ import com.spring.familymoments.domain.chat.model.MessageRes;
 import com.spring.familymoments.domain.chat.model.MessageTemplate;
 import com.spring.familymoments.domain.common.UserFamilyRepository;
 import com.spring.familymoments.domain.common.entity.UserFamily;
+import com.spring.familymoments.domain.family.entity.Family;
 import com.spring.familymoments.domain.redis.RedisService;
 import com.spring.familymoments.domain.user.entity.User;
+import com.spring.familymoments.domain.user.model.ChatProfile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -99,6 +101,7 @@ public class ChatService {
     }
 
     // 메세지 목록 조회 - messageId 이전 메세지
+    @Transactional(readOnly = true)
     public List<MessageRes> getPreviousMessages(User user, Long familyId, String messageId) {
         List<ChatDocument> chatDocuments = chatDocumentRepository.findByFamilyIdAndIdBeforeOrderByIdDesc(
                 familyId, new ObjectId(messageId), PageRequest.of(0, MESSAGE_PAGE)
@@ -122,7 +125,25 @@ public class ChatService {
     }
 
     // 현재 채팅방 정보 조회 - 유저 정보, 채팅방 정보
+    @Transactional(readOnly = true)
     public ChatRoomInfo getChatRoomInfo(User user, Long familyId) {
-        return null;
+        UserFamily userFamily = userFamilyRepository.findActiveUserFamilyByFamilyIdAndUser(familyId, user)
+                .orElseThrow(() -> new BaseException(minnie_FAMILY_INVALID_USER));
+
+        List<User> members = userFamilyRepository.findActiveAllUserByFamilyId(familyId);
+
+        List<ChatProfile> chatProfiles = members.stream()
+                .map(member -> ChatProfile.builder()
+                        .id(member.getId())
+                        .nickname(member.getNickname())
+                        .profileImg(member.getProfileImg())
+                        .build())
+                .collect(Collectors.toList());
+
+        return ChatRoomInfo.builder()
+                .familyId(familyId)
+                .familyName(userFamily.getFamilyId().getFamilyName())
+                .members(chatProfiles)
+                .build();
     }
 }

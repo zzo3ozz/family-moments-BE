@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface UserFamilyRepository extends JpaRepository<UserFamily, Long> {
 
@@ -64,5 +65,18 @@ public interface UserFamilyRepository extends JpaRepository<UserFamily, Long> {
             "WHERE uf.familyId.familyId = :familyId " +
             "AND uf.userId = :user " +
             "AND uf.status = 'ACTIVE'")
-    Optional<UserFamily> findActiveUserFamilyByFamilyIdAndUser(@Param("familyId") Long family, @Param("user") User user);
+    Optional<UserFamily> findActiveUserFamilyByFamilyIdAndUser(@Param("familyId") Long familyId, @Param("user") User user);
+
+    @Query("SELECT uf.userId FROM UserFamily uf " +
+            "WHERE uf.familyId.familyId = :familyId " +
+            "AND uf.status = 'ACTIVE'")
+    List<User> findActiveAllUserByFamilyId(@Param("familyId") Long familyId);
+
+    @Query("SELECT uf FROM UserFamily uf " +
+            "WHERE EXISTS " +
+            "(SELECT uf FROM UserFamily uf " +
+            "WHERE uf.familyId.familyId = :familyId " +
+            "AND uf.userId = :user " +
+            "AND uf.status = 'ACTIVE')")
+    Boolean existsUserInFamily(@Param("familyId") Long familyId, @Param("user") User user);
 }

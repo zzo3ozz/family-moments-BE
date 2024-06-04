@@ -53,7 +53,8 @@ public class ChatController {
     @Operation(summary = "채팅방 정보 조회", description = "접속한 채팅방의 멤버 정보 조회")
     public BaseResponse<ChatRoomInfo> getChatProfile(@AuthenticationPrincipal @Parameter(hidden = true) User user,
                                                      @PathVariable Long familyId) {
-        return null;
+        ChatRoomInfo chatRoomInfo = chatService.getChatRoomInfo(user, familyId);
+        return new BaseResponse<>(chatRoomInfo);
     }
 
     /**
