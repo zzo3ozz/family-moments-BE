@@ -103,6 +103,9 @@ public class ChatService {
     // 메세지 목록 조회 - messageId 이전 메세지
     @Transactional(readOnly = true)
     public List<MessageRes> getPreviousMessages(User user, Long familyId, String messageId) {
+        UserFamily userFamily = userFamilyRepository.findActiveUserFamilyByFamilyIdAndUser(familyId, user)
+                .orElseThrow(() -> new BaseException(minnie_FAMILY_INVALID_USER));
+
         List<ChatDocument> chatDocuments = chatDocumentRepository.findByFamilyIdAndIdBeforeOrderByIdDesc(
                 familyId, new ObjectId(messageId), PageRequest.of(0, MESSAGE_PAGE)
         );
