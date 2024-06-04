@@ -33,6 +33,11 @@ public class ChatController {
     public BaseResponse<List<MessageRes>> getMessageList(@AuthenticationPrincipal @Parameter(hidden = true) User user,
                                                          @PathVariable Long familyId,
                                                          @RequestParam(name = "messageId", required = false)String messageId) {
+        if(messageId == null) {
+            List<MessageRes> messages = chatService.getUnreadMessages(user, familyId);
+            return new BaseResponse<>(messages);
+        }
+
         return null;
     }
 

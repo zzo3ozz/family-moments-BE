@@ -59,4 +59,10 @@ public interface UserFamilyRepository extends JpaRepository<UserFamily, Long> {
             "AND uf.userId = :user " +
             "AND uf.status = 'ACTIVE'")
     Optional<UserFamily> findActiveUserFamilyByFamilyAndUser(@Param("family") Family family, @Param("user") User user);
+
+    @Query("SELECT uf FROM UserFamily uf " +
+            "WHERE uf.familyId.familyId = :familyId " +
+            "AND uf.userId = :user " +
+            "AND uf.status = 'ACTIVE'")
+    Optional<UserFamily> findActiveUserFamilyByFamilyIdAndUser(@Param("familyId") Long family, @Param("user") User user);
 }

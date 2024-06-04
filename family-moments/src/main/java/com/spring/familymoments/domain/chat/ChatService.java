@@ -1,15 +1,18 @@
 package com.spring.familymoments.domain.chat;
 
+import com.spring.familymoments.config.BaseException;
 import com.spring.familymoments.domain.chat.document.ChatDocument;
 import com.spring.familymoments.domain.chat.model.ChatRoomInfo;
 import com.spring.familymoments.domain.chat.model.MessageReq;
 import com.spring.familymoments.domain.chat.model.MessageRes;
 import com.spring.familymoments.domain.chat.model.MessageTemplate;
 import com.spring.familymoments.domain.common.UserFamilyRepository;
+import com.spring.familymoments.domain.common.entity.UserFamily;
 import com.spring.familymoments.domain.redis.RedisService;
 import com.spring.familymoments.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.spring.familymoments.config.BaseResponseStatus.*;
 
 
 @Slf4j
@@ -27,6 +33,9 @@ public class ChatService {
     private final RedisService redisService;
     private final UserFamilyRepository userFamilyRepository;
     private final SimpMessagingTemplate simpMessagingTemplate;
+
+    private static final int MAXIMUM_MESSAGE = 300;
+    private static final int MESSAGE_PAGE = 30;
 
     // chat Document에 저장
     public MessageRes createChat(Long familyId, MessageReq messageReq) {
@@ -66,8 +75,26 @@ public class ChatService {
     }
 
     // 메세지 목록 조회 - 읽지 않은 메세지(마지막 접속 기록 기준)
+    @Transactional(readOnly = true)
     public List<MessageRes> getUnreadMessages(User user, Long familyId) {
-        return null;
+        UserFamily userFamily = userFamilyRepository.findActiveUserFamilyByFamilyIdAndUser(familyId, user)
+                .orElseThrow(() -> new BaseException(minnie_FAMILY_INVALID_USER));
+
+        LocalDateTime lastAccessedTime = userFamily.getLastAccessedTime();
+
+        List<ChatDocument> chatDocuments = chatDocumentRepository
+                .findByFamilyIdAndSendedTimeAfterOrderBySendedTimeDesc(familyId, lastAccessedTime, PageRequest.of(0, MAXIMUM_MESSAGE));
+
+        List<MessageRes> messages = chatDocuments.stream()
+                .map(message -> MessageRes.builder()
+                        .messageId(message.getId().toString())
+                        .sender(message.getSender())
+                        .message(message.getMessage())
+                        .sendedTime(message.getSendedTime())
+                        .build())
+                .collect(Collectors.toList());
+
+        return messages;
     }
 
     // 메세지 목록 조회 - messageId 이전 메세지
