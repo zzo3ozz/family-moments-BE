@@ -13,4 +13,8 @@ public interface ChatDocumentRepository extends MongoRepository<ChatDocument, Ob
             Long familyId, LocalDateTime sendedTime, Pageable pageable);
 
     List<ChatDocument> findByFamilyIdAndIdBeforeOrderByIdDesc(Long familyId, ObjectId id, Pageable pageable);
+
+    Long countByFamilyIdAndSendedTimeAfter(Long familyId, LocalDateTime sendedTime);
+
+    ChatDocument findFirstByFamilyIdOrderByIdDesc(Long familyId);
 }

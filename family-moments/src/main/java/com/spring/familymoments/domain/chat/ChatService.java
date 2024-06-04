@@ -123,8 +123,27 @@ public class ChatService {
     }
 
     // 채팅방 목록 조회
+    @Transactional(readOnly = true)
     public List<ChatRoomInfo> getMyChatRooms(User user) {
-        return null;
+        List<UserFamily> userFamilies = userFamilyRepository.findAllActiveUserFamilyByUser(user);
+
+        List<ChatRoomInfo> chatRoomInfos = userFamilies.stream()
+                .map(userFamily -> {
+                    Family family = userFamily.getFamilyId();
+
+                    long cntMsg = chatDocumentRepository.countByFamilyIdAndSendedTimeAfter(family.getFamilyId(), userFamily.getLastAccessedTime());
+
+                    return ChatRoomInfo.builder()
+                            .familyId(family.getFamilyId())
+                            .familyName(family.getFamilyName())
+                            .familyProfile(family.getRepresentImg())
+                            .unreadMessages((cntMsg > 300L) ? 300 : Long.valueOf(cntMsg).intValue())
+                            .lastMessage(chatDocumentRepository.findFirstByFamilyIdOrderByIdDesc(family.getFamilyId()).getMessage())
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        return chatRoomInfos;
     }
 
     // 현재 채팅방 정보 조회 - 유저 정보, 채팅방 정보

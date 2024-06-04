@@ -65,6 +65,7 @@ public class ChatController {
     @GetMapping("/chatRooms")
     @Operation(summary = "전체 채팅 목록 조회", description = "나의 전체 채팅방 목록 조회")
     public BaseResponse<List<ChatRoomInfo>> getChatRooms(@AuthenticationPrincipal @Parameter(hidden = true) User user) {
-        return null;
+        List<ChatRoomInfo> chatRoomInfos = chatService.getMyChatRooms(user);
+        return new BaseResponse<>(chatRoomInfos);
     }
 }

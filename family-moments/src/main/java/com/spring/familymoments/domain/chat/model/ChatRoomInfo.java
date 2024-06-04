@@ -1,11 +1,10 @@
 package com.spring.familymoments.domain.chat.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.spring.familymoments.domain.user.model.ChatProfile;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -19,7 +18,9 @@ public class ChatRoomInfo {
     @NotNull
     String familyName;
     String familyProfile;
+    String lastMessage;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     List<ChatProfile> members;
-    @JsonIgnore
-    Integer unreadMessages;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    int unreadMessages;
 }
