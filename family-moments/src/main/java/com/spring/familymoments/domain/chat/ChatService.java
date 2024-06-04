@@ -12,6 +12,7 @@ import com.spring.familymoments.domain.redis.RedisService;
 import com.spring.familymoments.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -99,7 +100,20 @@ public class ChatService {
 
     // 메세지 목록 조회 - messageId 이전 메세지
     public List<MessageRes> getPreviousMessages(User user, Long familyId, String messageId) {
-        return null;
+        List<ChatDocument> chatDocuments = chatDocumentRepository.findByFamilyIdAndIdBeforeOrderByIdDesc(
+                familyId, new ObjectId(messageId), PageRequest.of(0, MESSAGE_PAGE)
+        );
+
+        List<MessageRes> messages = chatDocuments.stream()
+                .map(message -> MessageRes.builder()
+                        .messageId(message.getId().toString())
+                        .sender(message.getSender())
+                        .message(message.getMessage())
+                        .sendedTime(message.getSendedTime())
+                        .build())
+                .collect(Collectors.toList());
+
+        return messages;
     }
 
     // 채팅방 목록 조회

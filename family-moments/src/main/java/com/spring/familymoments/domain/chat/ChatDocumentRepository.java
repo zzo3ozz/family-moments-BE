@@ -9,5 +9,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ChatDocumentRepository extends MongoRepository<ChatDocument, ObjectId> {
-    List<ChatDocument> findByFamilyIdAndSendedTimeAfterOrderBySendedTimeDesc(Long familyId, LocalDateTime sendedTime, Pageable pageable);
+    List<ChatDocument> findByFamilyIdAndSendedTimeAfterOrderBySendedTimeDesc(
+            Long familyId, LocalDateTime sendedTime, Pageable pageable);
+
+    List<ChatDocument> findByFamilyIdAndIdBeforeOrderByIdDesc(Long familyId, ObjectId id, Pageable pageable);
 }
