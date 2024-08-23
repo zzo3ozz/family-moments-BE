@@ -1,1 +1,18 @@
+name: FamilyMoments
 
+# main에 대한 pull_request가 closed될 때 workflow를 실행
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - closed
+  workflow_dispatch: # 수동 실행도 가능하도록
+
+# merge 내용이 반영된 새로운 container 생성 및 도커 허브에 push
+jobs:
+  my-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: my-step
+        run: echo "Hello World!"
