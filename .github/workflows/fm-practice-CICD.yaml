@@ -11,8 +11,12 @@ on:
 
 # merge 내용이 반영된 새로운 container 생성 및 도커 허브에 push
 jobs:
-  my-job:
+  create_container:
     runs-on: ubuntu-latest
+    # pr의 결과가 merged인 경우만 jobs를 실행
+    if: github.event.pull_request.merged == true
+
     steps:
-      - name: my-step
-        run: echo "Hello World!"
+	  # repository의 소스코드를 다운로드 받음
+     - name: Download Source Code from repository
+       uses: actions/checkout@v4 # 마켓 플레이스에 등록된 action
