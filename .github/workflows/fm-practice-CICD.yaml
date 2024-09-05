@@ -43,5 +43,6 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         first_ssh: |
           docker login -u ${{ secrets.DOCKER_HUB_EMAIL }} -p ${{ secrets.DOCKER_HUB_PW }} 
-          docker pull hhzzo3ozz/familymoments:latest 
-          docker run -p 7000:9000 --name familymoments-contianer hhzzo3ozz/familymoments
+          docker pull hhzzo3ozz/familymoments:latest
+          docker rm familymoments-container
+          docker run -d -p 7000:9000 --name familymoments-container hhzzo3ozz/familymoments
