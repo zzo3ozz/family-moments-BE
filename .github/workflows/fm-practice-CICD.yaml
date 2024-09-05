@@ -6,7 +6,7 @@ on:
     types:
       - closed
   workflow_dispatch: #수동 실행도 가능하도록
-  inputs:
+    inputs:
       logLevel:
         description: 'Log level'
         required: true
